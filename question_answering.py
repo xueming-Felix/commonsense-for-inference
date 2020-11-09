@@ -1,12 +1,12 @@
 import tqdm
 import logging
-import numpy as np
 
+import numpy as np
 import torch
 import torch.nn as nn
 from torch.utils.data import TensorDataset
 
-from utils import *
+from utils import load_data
 
 logger = logging.getLogger(__name__)
 
@@ -14,7 +14,7 @@ logger = logging.getLogger(__name__)
 ###########################################
 #          Data Processing Classes        #
 ###########################################
-
+# https://github.com/YOONNAJANG/commonsenseQA/blob/master/run_commonsense_qa_mod.py
 
 class InputExample(object):
     """
@@ -48,11 +48,13 @@ class CommonsenseQAProcessor:
     """
 
     def __init__(self):
-        self.dataset = load_data(dataset='commonsense_qa', preview=-1)
+        self.dataset = None
         self.labels = [0, 1, 2, 3, 4]
         self.LABELS = ['A', 'B', 'C', 'D', 'E']
 
     def get_split(self, split='train'):
+        if self.dataset is None:
+            self.dataset = load_data(dataset='commonsense_qa', preview=-1)
         return self.dataset[split]
 
     def create_examples(self, split='train'):
@@ -235,7 +237,7 @@ def load_dataset(args, tokenizer, mode='train'):
         ]
 
     assert mode in {'train', 'validation', 'test'}
-    logger.info("Creating features from dataset file at %s", args.data_dir)
+    logger.info("Creating features from dataset...")
 
     processor = CommonsenseQAProcessor()
     label_list = processor.labels

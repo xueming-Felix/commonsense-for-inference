@@ -1,7 +1,36 @@
 import json
 import codecs
 
+import random
+import numpy as np
+import torch
+
 from datasets import load_dataset
+from transformers import (WEIGHTS_NAME, BertConfig,
+                          BertForMultipleChoice, BertTokenizer,
+                          XLNetConfig, XLNetForMultipleChoice,
+                          XLNetTokenizer, RobertaConfig,
+                          RobertaForMultipleChoice, RobertaTokenizer)
+
+
+def set_seed(seed):
+    torch.manual_seed(seed)
+    np.random.seed(seed)
+    random.seed(seed)
+    torch.cuda.manual_seed_all(seed)
+
+
+def load_model(model='all'):
+    if model == 'bert':
+        return BertConfig, BertForMultipleChoice, BertTokenizer
+    elif model == 'xlnet':
+        return XLNetConfig, XLNetForMultipleChoice, XLNetTokenizer
+    elif model == 'roberta':
+        return RobertaConfig, RobertaForMultipleChoice, RobertaTokenizer
+    elif model == 'gpt2':
+        raise NotImplemented
+    return sum((tuple(conf.pretrained_config_archive_map.keys())
+                for conf in (BertConfig, XLNetConfig, RobertaConfig)), ())
 
 
 def load_data(dataset='commonsense_qa', preview=5):
