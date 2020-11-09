@@ -1,7 +1,6 @@
-import tqdm
+from tqdm import tqdm
 import logging
 
-import numpy as np
 import torch
 import torch.nn as nn
 from torch.utils.data import TensorDataset
@@ -63,9 +62,7 @@ class CommonsenseQAProcessor:
         example_id = 0
 
         for question, choices, answerKey in zip(data_tr['question'], data_tr['choices'], data_tr['answerKey']):
-            answers = np.array([
-                choice['text'] for choice in sorted(choices, key=lambda c: c['label'])
-            ])
+            answers = choices['text']
             label = self.LABELS.index(answerKey)
             examples.append(InputExample(
                 example_id=example_id, question=question,
@@ -140,7 +137,7 @@ def examples_to_features(examples, label_list, max_seq_length, tokenizer,
     label_map = {label: i for i, label in enumerate(label_list)}
 
     features = []
-    for (ex_index, example) in tqdm.tqdm(enumerate(examples), desc="convert examples to features"):
+    for (ex_index, example) in tqdm(enumerate(examples), desc="convert examples to features"):
 
         choices_features = []
         for ending_idx, (question, answers) in enumerate(zip(example.question, example.answers)):
@@ -171,9 +168,6 @@ def examples_to_features(examples, label_list, max_seq_length, tokenizer,
                 tokens = [cls_token] + tokens
                 segment_ids = [cls_token_segment_id] + segment_ids
 
-            print("tokens:", tokens)
-            print("label:", example.label)
-
             input_ids = tokenizer.convert_tokens_to_ids(tokens)
 
             # The mask has 1 for real tokens and 0 for padding tokens.
@@ -192,10 +186,6 @@ def examples_to_features(examples, label_list, max_seq_length, tokenizer,
                 input_ids = input_ids + ([pad_token] * padding_length)
                 input_mask = input_mask + ([0 if mask_padding_with_zero else 1] * padding_length)
                 segment_ids = segment_ids + ([pad_token_segment_id] * padding_length)
-
-            print("input_ids:", input_ids)
-            print("input_mask:", input_mask)
-            print("segment_ids:", segment_ids)
 
             assert len(input_ids) == max_seq_length
             assert len(input_mask) == max_seq_length
@@ -241,7 +231,7 @@ def load_dataset(args, tokenizer, mode='train'):
 
     processor = CommonsenseQAProcessor()
     label_list = processor.labels
-    examples = processor.create_examples(split='mode')
+    examples = processor.create_examples(split=mode)
 
     logger.info("Training number: %s", str(len(examples)))
     features = examples_to_features(examples, label_list, args.max_seq_length, tokenizer,

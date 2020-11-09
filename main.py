@@ -18,7 +18,7 @@ def train(args, model, tokenizer):
     sampler = RandomSampler(dataset)
     dataloader = DataLoader(dataset, sampler=sampler, batch_size=args.batch_size)
 
-    model, optimizer, scheduler = load_optimizer(args, model, len(train_dataloader))
+    model, optimizer, scheduler = load_optimizer(args, model, len(dataloader))
 
     num_steps = 0
     best_steps = 0
@@ -152,10 +152,9 @@ if __name__ == "__main__":
                         help="Model: <str> [ bert | xlnet | roberta | gpt2 ]")
     parser.add_argument("--task_name", default=None, type=str, required=False,
                         help="The name of the task to train: <str> [ commonqa ]")
-    parser.add_argument("--model_name", type=str, required=True,
+    parser.add_argument("--model_name", type=str,
                         default='/mnt/raid5/shared/bert/tensorflow/cased_L-12_H-768_A-12/bert_config.json',
-                        help="Path to pre-trained model or shortcut name selected in the list: " + ", "
-                        .join(load_model('all')))
+                        help="Path to pre-trained model or shortcut name.")
     parser.add_argument("--config_name", type=str,
                         default="/mnt/raid5/shared/bert/tensorflow/cased_L-12_H-768_A-12/bert_config.json",
                         help="Pre-trained config name or path")

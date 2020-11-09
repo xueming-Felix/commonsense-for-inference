@@ -30,8 +30,7 @@ def load_model(model='all'):
         return RobertaConfig, RobertaForMultipleChoice, RobertaTokenizer
     elif model == 'gpt2':
         raise NotImplemented
-    return sum((tuple(conf.pretrained_config_archive_map.keys())
-                for conf in (BertConfig, XLNetConfig, RobertaConfig)), ())
+    raise NotImplemented
 
 
 def load_optimizer(args, model, train_size):
