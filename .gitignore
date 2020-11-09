@@ -1,5 +1,6 @@
 .idea/
 out/
+apex/
 *old.py
 
 # Byte-compiled / optimized / DLL files

@@ -5,19 +5,20 @@ import random
 import numpy as np
 import torch
 
+
 from datasets import load_dataset
-from transformers import (WEIGHTS_NAME, BertConfig,
-                          BertForMultipleChoice, BertTokenizer,
-                          XLNetConfig, XLNetForMultipleChoice,
-                          XLNetTokenizer, RobertaConfig,
-                          RobertaForMultipleChoice, RobertaTokenizer)
+from transformers import (AdamW, get_linear_schedule_with_warmup,
+                          BertConfig, BertForMultipleChoice, BertTokenizer,
+                          XLNetConfig, XLNetForMultipleChoice, XLNetTokenizer,
+                          RobertaConfig, RobertaForMultipleChoice, RobertaTokenizer)
 
 
 def set_seed(seed):
     torch.manual_seed(seed)
     np.random.seed(seed)
     random.seed(seed)
-    torch.cuda.manual_seed_all(seed)
+    if torch.cuda.is_available():
+        torch.cuda.manual_seed_all(seed)
 
 
 def load_model(model='all'):
@@ -31,6 +32,26 @@ def load_model(model='all'):
         raise NotImplemented
     return sum((tuple(conf.pretrained_config_archive_map.keys())
                 for conf in (BertConfig, XLNetConfig, RobertaConfig)), ())
+
+
+def load_optimizer(args, model, train_size):
+    num_training_steps = train_size // args.num_train_epochs
+    no_decay = ['bias', 'LayerNorm.weight']
+    optimizer_grouped_parameters = [
+        {'params': [p for n, p in model.named_parameters()
+                    if not any(nd in n for nd in no_decay)],
+         'weight_decay': args.weight_decay},
+        {'params': [p for n, p in model.named_parameters()
+                    if any(nd in n for nd in no_decay)],
+         'weight_decay': 0.0}
+    ]
+
+    optimizer = AdamW(
+        optimizer_grouped_parameters, lr=args.learning_rate, eps=args.adam_epsilon)
+    scheduler = get_linear_schedule_with_warmup(
+        optimizer, num_warmup_steps=args.warmup_steps, num_training_steps=num_training_steps)
+
+    return model, optimizer, scheduler
 
 
 def load_data(dataset='commonsense_qa', preview=5):
