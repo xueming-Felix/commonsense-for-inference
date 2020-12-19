@@ -6,7 +6,7 @@ Commonsense in Natural Language Inference (NLI)
 
 ## Team 2
 
-* Students: Ziqiao Ma (me), [Xueming Xu](https://github.com/xueming-Felix), [Qingyi Chen](https://github.com/qingyichen)
+* Students: [Ziqiao Ma](https://github.com/Mars-tin), [Xueming Xu](https://github.com/xueming-Felix), [Qingyi Chen](https://github.com/qingyichen)
 
 * Source code: [GitHub](https://github.com/Mars-tin/commonsense-for-inference).
 
